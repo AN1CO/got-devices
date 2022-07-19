@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
 	Box,
 	Table,
@@ -9,6 +9,7 @@ import {
 	TableRow,
 	Paper,
 	Checkbox,
+	Button,
 } from '@mui/material';
 
 const rows = [
@@ -91,7 +92,11 @@ const TableHeadTitle = (props) => {
 				<TableCell key='selected'>
 					{numSelected > 0 ? `${numSelected} Selected` : 'None Selected'}
 				</TableCell>
-				<TableCell key='download_selected'>Download Selected</TableCell>
+				<TableCell key='download_selected'>
+					<Button onClick={() => alert('this is an alert')}>
+						Download Selected
+					</Button>
+				</TableCell>
 			</TableRow>
 		</TableHead>
 	);
@@ -109,9 +114,38 @@ const TableHeadHeader = () => {
 	);
 };
 
+const TableBodyRows = (props) => {
+	const { isChecked, setChecked } = props;
+
+	return (
+		<TableBody>
+			{rows.map((row) => (
+				<TableRow hover role='checkbox' key={row.name}>
+					<TableCell padding='checkbox'>
+						<Checkbox
+							color='primary'
+							disabled={row.status === 'scheduled'}
+							checked={isChecked}
+							onChange={() => {
+								setChecked(!isChecked);
+							}}
+						/>
+					</TableCell>
+					<TableCell scope='row'>{row.name}</TableCell>
+					<TableCell>{row.device}</TableCell>
+					<TableCell>{row.path}</TableCell>
+					<TableCell>
+						{row.status.charAt(0).toUpperCase() + row.status.slice(1)}
+					</TableCell>
+				</TableRow>
+			))}
+		</TableBody>
+	);
+};
+
 const DownloadTable = () => {
-	const [isSelected, setIsSelected] = useState(false);
-	const [selected, setSelected] = useState([]);
+	const [selected, setSelected] = useState(false);
+	const [allSelected, setAllSelected] = useState([]);
 	const handleSelectAll = (event) => {
 		if (event.target.checked) {
 			const newSelecteds = rows.map((item) => {
@@ -122,11 +156,12 @@ const DownloadTable = () => {
 				}
 				return availableItems;
 			});
-			setSelected(newSelecteds);
+			setAllSelected(newSelecteds);
 			return;
 		}
-		setSelected([]);
+		setAllSelected([]);
 	};
+
 	return (
 		<Box>
 			<Paper sx={{ width: '100%', mb: 2 }}>
@@ -135,40 +170,10 @@ const DownloadTable = () => {
 						<TableHeadTitle
 							onSelectAllClick={handleSelectAll}
 							rowCount={rows.length}
-							numSelected={selected.length}
+							numSelected={allSelected.length}
 						/>
 						<TableHeadHeader />
-						{/* <TableHead>
-							<TableRow>
-								<TableCell></TableCell>
-								<TableCell>Name</TableCell>
-								<TableCell>Device</TableCell>
-								<TableCell>Path</TableCell>
-								<TableCell>Status</TableCell>
-							</TableRow>
-						</TableHead> */}
-						<TableBody>
-							{rows.map((row) => (
-								<TableRow hover role='checkbox' key={row.name}>
-									<TableCell padding='checkbox'>
-										<Checkbox
-											color='primary'
-											disabled={row.status === 'scheduled'}
-											checked={isSelected}
-											onChange={() => {
-												setIsSelected(!isSelected);
-											}}
-										/>
-									</TableCell>
-									<TableCell scope='row'>{row.name}</TableCell>
-									<TableCell>{row.device}</TableCell>
-									<TableCell>{row.path}</TableCell>
-									<TableCell>
-										{row.status.charAt(0).toUpperCase() + row.status.slice(1)}
-									</TableCell>
-								</TableRow>
-							))}
-						</TableBody>
+						<TableBodyRows isChecked={selected} setChecked={setSelected} />
 					</Table>
 				</TableContainer>
 			</Paper>
