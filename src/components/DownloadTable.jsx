@@ -1,16 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import {
-	Box,
-	Table,
-	TableBody,
-	TableContainer,
-	TableHead,
-	TableCell,
-	TableRow,
-	Paper,
-	Checkbox,
-	Button,
-} from '@mui/material';
+import React, { useState, useEffect, useRef } from 'react';
+import { Box, Table, TableContainer, Paper } from '@mui/material';
+import { TableTitle, TableHeader, BodyRows } from './subcomponents';
 
 const rows = [
 	{
@@ -49,113 +39,27 @@ const rows = [
 	},
 ];
 
-const headCells = [
-	{
-		id: 'blank',
-		label: '',
-	},
-	{
-		id: 'name',
-		label: 'Name',
-	},
-	{
-		id: 'device',
-		label: 'Device',
-	},
-	{
-		id: 'path',
-		label: 'Path',
-	},
-	{
-		id: 'status',
-		label: 'Status',
-	},
-];
-
-const TableHeadTitle = (props) => {
-	const { onSelectAllClick, numSelected, rowCount } = props;
-
-	return (
-		<TableHead>
-			<TableRow>
-				<TableCell padding='checkbox'>
-					<Checkbox
-						color='primary'
-						indeterminate={numSelected > 0 && numSelected < rowCount}
-						checked={rowCount > 0 && numSelected === rowCount}
-						onChange={onSelectAllClick}
-						inputProps={{
-							'aria-label': 'select all available devices',
-						}}
-					/>
-				</TableCell>
-				<TableCell key='selected'>
-					{numSelected > 0 ? `${numSelected} Selected` : 'None Selected'}
-				</TableCell>
-				<TableCell key='download_selected'>
-					<Button onClick={() => alert('this is an alert')}>
-						Download Selected
-					</Button>
-				</TableCell>
-			</TableRow>
-		</TableHead>
-	);
-};
-
-const TableHeadHeader = () => {
-	return (
-		<TableHead>
-			<TableRow>
-				{headCells.map((headCell) => (
-					<TableCell key={headCell.id}>{headCell.label}</TableCell>
-				))}
-			</TableRow>
-		</TableHead>
-	);
-};
-
-const TableBodyRows = (props) => {
-	const { isChecked, setChecked } = props;
-
-	return (
-		<TableBody>
-			{rows.map((row) => (
-				<TableRow hover role='checkbox' key={row.name}>
-					<TableCell padding='checkbox'>
-						<Checkbox
-							color='primary'
-							disabled={row.status === 'scheduled'}
-							checked={isChecked}
-							onChange={() => {
-								setChecked(!isChecked);
-							}}
-						/>
-					</TableCell>
-					<TableCell scope='row'>{row.name}</TableCell>
-					<TableCell>{row.device}</TableCell>
-					<TableCell>{row.path}</TableCell>
-					<TableCell>
-						{row.status.charAt(0).toUpperCase() + row.status.slice(1)}
-					</TableCell>
-				</TableRow>
-			))}
-		</TableBody>
-	);
-};
-
 const DownloadTable = () => {
+	const filteredRows = rows.filter((row) => row.status === 'available');
+	const checkedObj = useRef({});
+	const [checked, setChecked] = useState({});
 	const [selected, setSelected] = useState(false);
 	const [allSelected, setAllSelected] = useState([]);
+
+	// update with object to handle all eligible boolean checkboxes
+	useEffect(() => {
+		checkedObj.current = filteredRows.forEach((row) => {
+			let obj = {};
+			let key = row.name;
+			return (obj[key] = false);
+		});
+	}, [filteredRows]);
+
+	console.log(checkedObj);
+
 	const handleSelectAll = (event) => {
 		if (event.target.checked) {
-			const newSelecteds = rows.map((item) => {
-				console.log('what is item', item);
-				let availableItems;
-				if (item.status === 'available') {
-					availableItems = item.name;
-				}
-				return availableItems;
-			});
+			const newSelecteds = filteredRows.map((n) => n.name);
 			setAllSelected(newSelecteds);
 			return;
 		}
@@ -167,13 +71,17 @@ const DownloadTable = () => {
 			<Paper sx={{ width: '100%', mb: 2 }}>
 				<TableContainer>
 					<Table sx={{ minWidth: 700 }} aria-label='device table'>
-						<TableHeadTitle
+						<TableTitle
 							onSelectAllClick={handleSelectAll}
-							rowCount={rows.length}
+							rowCount={filteredRows.length}
 							numSelected={allSelected.length}
 						/>
-						<TableHeadHeader />
-						<TableBodyRows isChecked={selected} setChecked={setSelected} />
+						<TableHeader />
+						<BodyRows
+							rows={rows}
+							isChecked={selected}
+							setChecked={setSelected}
+						/>
 					</Table>
 				</TableContainer>
 			</Paper>
