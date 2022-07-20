@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Table, TableContainer, Paper } from '@mui/material';
 import { TableTitle, TableHeader, BodyRows } from './subcomponents';
 
@@ -52,7 +52,7 @@ const DownloadTable = () => {
 			return (checkedObj[key] = false);
 		});
 		setChecked(checkedObj);
-	}, [rows]);
+	}, []);
 
 	return (
 		<Box>

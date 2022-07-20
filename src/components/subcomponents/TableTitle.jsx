@@ -40,9 +40,32 @@ export const TableTitle = (props) => {
 		} else {
 			setAllSelected(false);
 		}
-	}, [checked]);
+	}, [checked, setAllSelected]);
 
-	console.log(rows);
+	const downloadClick = () => {
+		let downloadArray = [];
+		let nameArray = [];
+		let pathArray = [];
+		rows.filter((row) => {
+			if (checked[row.name] === true) {
+				downloadArray.push(row);
+			}
+			return downloadArray;
+		});
+
+		if (downloadArray.length > 0) {
+			downloadArray.forEach((item) => {
+				nameArray.push(item.name);
+				pathArray.push(item.path);
+			});
+		}
+
+		alert(
+			nameArray.length > 0 && pathArray.length > 0
+				? `Name: ${nameArray.toString()}\n Path: ${pathArray.toString()}`
+				: 'No devices selected for download.'
+		);
+	};
 
 	return (
 		<TableHead>
@@ -63,9 +86,7 @@ export const TableTitle = (props) => {
 						: 'None Selected'}
 				</TableCell>
 				<TableCell key='download_selected'>
-					<Button onClick={() => alert('this is an alert')}>
-						Download Selected
-					</Button>
+					<Button onClick={() => downloadClick()}>Download Selected</Button>
 				</TableCell>
 			</TableRow>
 		</TableHead>
