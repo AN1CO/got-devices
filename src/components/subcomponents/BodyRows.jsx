@@ -4,6 +4,14 @@ import { TableBody, TableCell, TableRow, Checkbox } from '@mui/material';
 export const BodyRows = (props) => {
 	const { isChecked, setChecked, rows } = props;
 
+	const toggleCheck = (inputName) => {
+		setChecked((prevState) => {
+			const newState = { ...prevState };
+			newState[inputName] = !prevState[inputName];
+			return newState;
+		});
+	};
+
 	return (
 		<TableBody>
 			{rows.map((row) => (
@@ -13,9 +21,9 @@ export const BodyRows = (props) => {
 							color='primary'
 							name={row.name}
 							disabled={row.status === 'scheduled'}
-							checked={isChecked}
+							checked={!!isChecked[row.name]}
 							onChange={() => {
-								setChecked(!isChecked);
+								toggleCheck(row.name);
 							}}
 						/>
 					</TableCell>

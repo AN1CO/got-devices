@@ -41,30 +41,18 @@ const rows = [
 
 const DownloadTable = () => {
 	const filteredRows = rows.filter((row) => row.status === 'available');
-	const checkedObj = useRef({});
 	const [checked, setChecked] = useState({});
-	const [selected, setSelected] = useState(false);
-	const [allSelected, setAllSelected] = useState([]);
+	const [allSelected, setAllSelected] = useState(false);
 
 	// update with object to handle all eligible boolean checkboxes
 	useEffect(() => {
-		checkedObj.current = filteredRows.forEach((row) => {
-			let obj = {};
+		let checkedObj = {};
+		filteredRows.forEach((row) => {
 			let key = row.name;
-			return (obj[key] = false);
+			return (checkedObj[key] = false);
 		});
-	}, [filteredRows]);
-
-	console.log(checkedObj);
-
-	const handleSelectAll = (event) => {
-		if (event.target.checked) {
-			const newSelecteds = filteredRows.map((n) => n.name);
-			setAllSelected(newSelecteds);
-			return;
-		}
-		setAllSelected([]);
-	};
+		setChecked(checkedObj);
+	}, [rows]);
 
 	return (
 		<Box>
@@ -72,16 +60,15 @@ const DownloadTable = () => {
 				<TableContainer>
 					<Table sx={{ minWidth: 700 }} aria-label='device table'>
 						<TableTitle
-							onSelectAllClick={handleSelectAll}
-							rowCount={filteredRows.length}
-							numSelected={allSelected.length}
+							allSelected={allSelected}
+							setAllSelected={setAllSelected}
+							setChecked={setChecked}
+							checked={checked}
+							numSelected={filteredRows.length}
+							rows={filteredRows}
 						/>
 						<TableHeader />
-						<BodyRows
-							rows={rows}
-							isChecked={selected}
-							setChecked={setSelected}
-						/>
+						<BodyRows rows={rows} isChecked={checked} setChecked={setChecked} />
 					</Table>
 				</TableContainer>
 			</Paper>
